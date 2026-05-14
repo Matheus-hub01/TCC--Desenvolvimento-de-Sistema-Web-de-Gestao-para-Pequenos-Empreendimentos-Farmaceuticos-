@@ -1,1 +1,1 @@
-# TCC--Desenvolvimento-de-Sistema-Web-de-Gest-o-para-Pequenos-Empreendimentos-Farmac-uticos-
+# TCC--Desenvolvimento-de-Sistema-Web-de-Gestão-para-Pequenos-Empreendimentos-Farmacêuticos-
