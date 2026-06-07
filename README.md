@@ -23,7 +23,6 @@ Este repositório contém o projeto desenvolvido para o Trabalho de Conclusão d
 
 - `codigo-fonte/`: arquivos do sistema web
 - `imagens/`: telas utilizadas no TCC
-- `diagramas/`: diagramas do sistema
 - `documentacao/`: arquivo final do TCC
 
 ## Autor
