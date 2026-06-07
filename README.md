@@ -1,6 +1,4 @@
-# TCC--Desenvolvimento-de-Sistema-Web-de-Gestão-para-Pequenos-Empreendimentos-Farmacêuticos-
-# Sistema Web para Farmácia de Bairro
-
+# TCC--Desenvolvimento-de-Sistema-Web-de-Gestão-para-Pequenos-Empreendimentos-Farmacêuticos
 Este repositório contém o projeto desenvolvido para o Trabalho de Conclusão de Curso, com o objetivo de criar um sistema web para auxiliar farmácias de bairro na divulgação e venda de produtos pela internet.
 
 ## Tecnologias utilizadas
