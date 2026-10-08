@@ -1,0 +1,101 @@
+# =====================================================================
+# Gitignore para Projeto PHP / Apache / TCC Farmacêutico
+# =====================================================================
+
+# --- Arquivos de Ambiente e Configuração Local ---
+.env
+.env.local
+.env.*.local
+*.env
+config.local.php
+conexao.local.php
+
+# --- Dependências (Composer e Node) ---
+vendor/
+node_modules/
+composer.phar
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Arquivos de Banco de Dados Locais e Backups ---
+*.fdb
+*.FDB
+*.gdb
+*.fbk
+*.gbak
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+
+# --- Logs e Arquivos Temporários ---
+atualizacoes_eduardo/
+*.log
+logs/
+error_log
+*.tmp
+*.temp
+tmp/
+temp/
+sessions/
+
+# --- IDEs e Editores de Código ---
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# JetBrains (PhpStorm, IntelliJ, etc.)
+.idea/
+*.iws
+*.iml
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+
+# Sublime Text / Eclipse / outros
+*.sublime-workspace
+*.sublime-project
+.project
+.settings/
+.buildpath
+
+# --- Arquivos do Sistema Operacional ---
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.stackdump
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# --- Backups e Compactados ---
+*.bak
+*.old
+*.swp
+*.swo
+*.orig
+*.rar
+*.zip
+*.7z
+*.tar.gz
