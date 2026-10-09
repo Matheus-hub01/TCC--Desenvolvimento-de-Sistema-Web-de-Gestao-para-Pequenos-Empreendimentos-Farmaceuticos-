@@ -1,12 +1,20 @@
 <?php
 session_start();
 require_once 'conexao.php';
+require_once 'configuracao_helper.php';
+require_once 'funcoes_produtos.php';
+
+$config = obterConfiguracaoSistema($pdo);
 
 $busca = trim($_GET['busca'] ?? '');
 $categoriaSelecionada = trim($_GET['categoria'] ?? '');
 $indicacaoSelecionada = trim($_GET['indicacao'] ?? '');
 
 $clienteLogado = $_SESSION['cliente_logado'] ?? null;
+$usuarioLogado = $_SESSION['usuario_logado'] ?? null;
+$perfilLogado = strtoupper(trim($usuarioLogado['perfil'] ?? ($clienteLogado['perfil'] ?? 'CLIENTE')));
+$isAdmin = str_contains($perfilLogado, 'ADMIN');
+$ehOperador = str_contains($perfilLogado, 'ADMIN') || str_contains($perfilLogado, 'SEPAR');
 
 /*
 |--------------------------------------------------------------------------
@@ -283,173 +291,8 @@ function escapar(string $valor): string
 }
 
 
- function formatarNomeProduto(string $nome, string $codigoProduto = '', string $codigoBarra = ''): string
-{
-    $nome = trim($nome);
-    $codigoProduto = trim((string) $codigoProduto);
-    $codigoBarra = trim((string) $codigoBarra); 
+require_once __DIR__ . '/funcoes_produtos.php';
 
-    // Remove código de barras no início do nome
-    if ($codigoBarra !== '' && strpos($nome, $codigoBarra) === 0) {
-        $nome = substr($nome, strlen($codigoBarra));
-    }
-
-    // Remove código do produto no início do nome
-    if ($codigoProduto !== '' && strpos($nome, $codigoProduto) === 0) {
-        $nome = substr($nome, strlen($codigoProduto));
-    }
-
-    // Remove números longos no começo: 7896025Bloco...
-    $nome = preg_replace('/^\s*\d{5,}\s*/u', '', $nome);
-
-    // Corrige casos como 0Oleo -> Oleo
-    $nome = preg_replace('/^\s*0+(?=[A-Za-zÀ-ÿ])/u', '', $nome);
-
-    // Coloca espaço entre número e letra quando vier grudado
-    $nome = preg_replace('/(?<=[A-Za-zÀ-ÿ])(?=\d)/u', ' ', $nome);
-    $nome = preg_replace('/(?<=\d)(?=[A-Za-zÀ-ÿ])/u', ' ', $nome);
-
-    // Padroniza espaços ao redor de +
-    $nome = preg_replace('/\s*\+\s*/u', ' + ', $nome);
-
-    // Deixa o texto em formato bonito
-    $nome = mb_strtolower($nome, 'UTF-8');
-    $nome = mb_convert_case($nome, MB_CASE_TITLE, 'UTF-8');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Abreviações comuns de produtos de farmácia
-    |--------------------------------------------------------------------------
-    */
-
-    // C/ e S/
-    $nome = preg_replace('/\bC\/\s*/iu', 'com ', $nome);
-    $nome = preg_replace('/\bS\/\s*/iu', 'sem ', $nome);
-
-    // Caixa / CX
-    $nome = preg_replace('/\bCx\.?\s*(?=\d)/iu', '', $nome);
-    $nome = preg_replace('/\bCx\.?\b/iu', 'caixa', $nome);
-
-    // Comprimidos
-    $nome = preg_replace('/(\d+)\s*(Cpr|Comp|Comps|Cp)\b\.?/iu', '$1 comprimidos', $nome);
-    $nome = preg_replace('/\b(Cpr|Comp|Comps|Cp)\b\.?/iu', 'comprimidos', $nome);
-
-    // Cápsulas
-    $nome = preg_replace('/(\d+)\s*(Caps|Cap|Cps|Cáps)\b\.?/iu', '$1 cápsulas', $nome);
-    $nome = preg_replace('/\b(Caps|Cap|Cps|Cáps)\b\.?/iu', 'cápsulas', $nome);
-
-    // Unidades
-    $nome = preg_replace('/(\d+)\s*(Unid|Und|Un)\b\.?/iu', '$1 unidades', $nome);
-    $nome = preg_replace('/\b(Unid|Und|Un)\b\.?/iu', 'unidade', $nome);
-
-    // Medidas
-    $nome = preg_replace('/(\d+)\s*Mg\/Ml\b/iu', '$1mg/mL', $nome);
-    $nome = preg_replace('/(\d+)\s*Mg\b/iu', '$1mg', $nome);
-    $nome = preg_replace('/(\d+)\s*Mcg\b/iu', '$1mcg', $nome);
-    $nome = preg_replace('/(\d+)\s*Ml\b/iu', '$1mL', $nome);
-    $nome = preg_replace('/(\d+)\s*G\b/iu', '$1g', $nome);
-
-    // Gotas
-    $nome = preg_replace('/\b(Gts|Gt|Gd)\b\.?/iu', 'gotas', $nome);
-
-    // Embalagens
-    $nome = preg_replace('/\bFrs\b\.?/iu', 'frascos', $nome);
-    $nome = preg_replace('/\bFr\b\.?/iu', 'frasco', $nome);
-    $nome = preg_replace('/\bBisn\b\.?/iu', 'bisnaga', $nome);
-    $nome = preg_replace('/\bEnv\b\.?/iu', 'envelope', $nome);
-
-    // Sachê / sachês
-    $nome = preg_replace('/(\d+)\s*(Sache|Sachê|Sach|Saches)\b\.?/iu', '$1 sachês', $nome);
-    $nome = preg_replace('/\b(Sache|Sachê|Sach)\b\.?/iu', 'sachê', $nome);
-
-    // Blister / display
-    $nome = preg_replace('/\bBl\b\.?/iu', 'blister', $nome);
-    $nome = preg_replace('/\bDisp\b\.?/iu', 'display', $nome);
-
-    // Características do medicamento
-    $nome = preg_replace('/\bRev\b\.?/iu', 'revestidos', $nome);
-    $nome = preg_replace('/\bEferv\b\.?/iu', 'efervescente', $nome);
-    $nome = preg_replace('/\bMast\b\.?/iu', 'mastigável', $nome);
-    $nome = preg_replace('/\bSol\b\.?/iu', 'solução', $nome);
-    $nome = preg_replace('/\bSusp\b\.?/iu', 'suspensão', $nome);
-    $nome = preg_replace('/\bXpe\b\.?/iu', 'xarope', $nome);
-    $nome = preg_replace('/\bInj\b\.?/iu', 'injetável', $nome);
-
-    // Sabores / cores / público
-    $nome = preg_replace('/\b(Sb|Sab)\b\.?/iu', 'sabor', $nome);
-    $nome = preg_replace('/\bVerd\b\.?/iu', 'verdes', $nome);
-    $nome = preg_replace('/\bAmar\b\.?/iu', 'amarelos', $nome);
-    $nome = preg_replace('/\bAdul\b\.?/iu', 'adulto', $nome);
-    $nome = preg_replace('/\bPed\b\.?/iu', 'pediátrico', $nome);
-    $nome = preg_replace('/\bInf\b\.?/iu', 'infantil', $nome);
-
-    // Genéricos e formas comuns
-    $nome = preg_replace('/\bGen\b\.?/iu', 'genérico', $nome);
-    $nome = preg_replace('/\bMono\b\.?/iu', 'monoidratada', $nome);
-    $nome = preg_replace('/\bMonoid\b\.?/iu', 'monoidratada', $nome);
-
-    // Arruma "X" entre números: 24 X 5 -> 24 x 5
-    $nome = preg_replace('/(\d+)\s*X\s*(\d+)/iu', '$1 x $2', $nome);
-
-    // Palavras pequenas ficam melhores em minúsculo
-    $palavrasMinusculas = [
-        ' De ' => ' de ',
-        ' Da ' => ' da ',
-        ' Do ' => ' do ',
-        ' Das ' => ' das ',
-        ' Dos ' => ' dos ',
-        ' E ' => ' e ',
-        ' Para ' => ' para ',
-        ' Com ' => ' com ',
-        ' Sem ' => ' sem ',
-        ' Sabor ' => ' sabor ',
-        ' Por ' => ' por '
-    ];
-
-    $nome = str_replace(
-        array_keys($palavrasMinusculas),
-        array_values($palavrasMinusculas),
-        $nome
-    );
-
-    // Remove espaços duplicados
-    $nome = preg_replace('/\s+/', ' ', trim($nome));
-
-    // Primeira letra maiúscula
-    return mb_strtoupper(mb_substr($nome, 0, 1, 'UTF-8'), 'UTF-8') .
-           mb_substr($nome, 1, null, 'UTF-8');
-}
-
-function imagemProduto($codigoProduto, $codigoBarra = ''): string
-{
-    $pastaServidor = __DIR__ . '/img/produtos/';
-    $pastaSite = 'img/produtos/';
-
-    $extensoes = ['jpg', 'jpeg', 'png', 'webp'];
-
-    $possiveisNomes = [];
-
-    if (!empty($codigoBarra)) {
-        $possiveisNomes[] = trim($codigoBarra);
-    }
-
-    if (!empty($codigoProduto)) {
-        $possiveisNomes[] = trim($codigoProduto);
-    }
-
-    foreach ($possiveisNomes as $nome) {
-        foreach ($extensoes as $extensao) {
-            $arquivoServidor = $pastaServidor . $nome . '.' . $extensao;
-            $arquivoSite = $pastaSite . $nome . '.' . $extensao;
-
-            if (file_exists($arquivoServidor)) {
-                return $arquivoSite;
-            }
-        }
-    }
-
-    return 'img/produtos/sem-imagem.png';
-}
 
 
 
@@ -461,8 +304,14 @@ function imagemProduto($codigoProduto, $codigoBarra = ''): string
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produtos | Farmácia Online</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Produtos | <?= escapar($config['NOME_FARMACIA']) ?></title>
+    <link rel="stylesheet" href="css/style.css?v=<?= filemtime(__DIR__ . '/css/style.css') ?>">
+    <style>
+        :root {
+            --cor-primaria-custom: <?= $config['COR_PRIMARIA'] ?>;
+            --cor-secundaria-custom: <?= $config['COR_SECUNDARIA'] ?>;
+        }
+    </style>
 </head>
 <body>
 
@@ -471,9 +320,10 @@ function imagemProduto($codigoProduto, $codigoBarra = ''): string
         <div class="topo-esquerda">
             <a href="produtos.php" class="logo">
                 <img 
-                    src="img/logo-pharmapaz.png" 
-                    alt="Drogaria PharmaPaz" 
+                    src="<?= escapar($config['LOGO_URL']) ?>" 
+                    alt="<?= escapar($config['NOME_FARMACIA']) ?>" 
                     class="logo-img"
+                    onerror="this.src='imagens/logo-pharmapaz.png'"
                 >
             </a>
         </div>
@@ -506,6 +356,11 @@ function imagemProduto($codigoProduto, $codigoBarra = ''): string
 
         <div class="topo-direita">
             
+            <?php if ($ehOperador): ?>
+            <a href="painel.php" class="btn-link-painel" style="background: <?= $config['COR_PRIMARIA'] ?>; color: #ffffff; padding: 0.5rem 0.85rem; border-radius: 8px; font-weight: 700; font-size: 0.82rem; text-decoration: none; display: flex; align-items: center; gap: 0.35rem; margin-right: 0.5rem; box-shadow: 0 2px 6px rgba(0,138,115,0.25);">
+                ⚙ Painel <?= $isAdmin ? 'Admin' : 'Separador' ?>
+            </a>
+            <?php endif; ?>
 
             <a href="#" 
                  onclick="<?= $clienteLogado ? 'abrirPerfilUsuario(event)' : 'abrirLoginCadastro(event)' ?>" 
@@ -1503,6 +1358,18 @@ function imagemProduto($codigoProduto, $codigoBarra = ''): string
 
     <div class="perfil-opcoes">
 
+        <?php if ($ehOperador): ?>
+        <a href="painel.php" class="perfil-opcao" style="background: #e6f7f4; border: 1.5px solid #008a73;">
+            <div class="perfil-opcao-icone" style="color: #008a73;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div>
+                <strong style="color: #008a73;">Painel de Gestão</strong>
+                <span>Área Restrita (<?= $isAdmin ? 'Administrador' : 'Separador' ?>)</span>
+            </div>
+        </a>
+        <?php endif; ?>
+
         <a href="gerenciar_perfil.php" class="perfil-opcao">
             <div class="perfil-opcao-icone">
                 <svg viewBox="0 0 24 24">
@@ -1714,7 +1581,64 @@ function imagemProduto($codigoProduto, $codigoBarra = ''): string
                 }
             });
         });
+
+        // Verificação de Parâmetros de URL (Abertura de modals e alertas automáticos)
+        const urlParams = new URLSearchParams(window.location.search);
+
+        if (urlParams.get('abrir') === 'login') {
+            const modal = document.getElementById('modalLoginCadastro');
+            if (modal) {
+                modal.classList.add('ativo');
+                mostrarLogin();
+            }
+        } else if (urlParams.get('abrir') === 'cadastro') {
+            const modal = document.getElementById('modalLoginCadastro');
+            if (modal) {
+                modal.classList.add('ativo');
+                mostrarCadastro();
+            }
+        }
+
+        if (urlParams.get('login_erro')) {
+            mostrarToastAviso('Aviso de Acesso', 'Usuário não cadastrado nesta sessão. Cadastre-se primeiro.', 'aviso');
+            const modal = document.getElementById('modalLoginCadastro');
+            if (modal) {
+                modal.classList.add('ativo');
+                mostrarCadastro();
+            }
+        } else if (urlParams.get('cadastro') === 'sucesso') {
+            mostrarToastAviso('Cadastro Concluído!', 'Sua conta foi criada com sucesso e você já está logado(a).', 'sucesso');
+        } else if (urlParams.get('login') === 'sucesso') {
+            mostrarToastAviso('Bem-vindo(a)!', 'Login realizado com sucesso na Drogaria PharmaPaz.', 'sucesso');
+        } else if (urlParams.get('logout') === 'sucesso') {
+            mostrarToastAviso('Sessão Finalizada', 'Você desconectou da sua conta.', 'info');
+        }
     });
+
+    function mostrarToastAviso(titulo, msg, tipo) {
+        let container = document.getElementById('toastNotificacoesApp');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastNotificacoesApp';
+            container.style.cssText = 'position: fixed; top: 25px; right: 25px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; max-width: 380px;';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        const cor = tipo === 'sucesso' ? '#008a73' : (tipo === 'aviso' ? '#d97706' : '#2563eb');
+        toast.style.cssText = `background: #ffffff; border-left: 5px solid ${cor}; box-shadow: 0 10px 30px rgba(0,0,0,0.18); border-radius: 12px; padding: 14px 18px; color: #0f172a; font-size: 0.9rem; transition: all 0.3s ease; animation: fadeInToast 0.3s ease-out;`;
+        toast.innerHTML = `
+            <div style="font-weight: 700; margin-bottom: 4px; color: ${cor};">${titulo}</div>
+            <div style="color: #475569; font-size: 0.85rem; line-height: 1.45;">${msg}</div>
+        `;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(() => toast.remove(), 350);
+        }, 5000);
+    }
 
     // Funções para menu de categorias
     function abrirMenuCategorias() {
@@ -1993,6 +1917,8 @@ function fecharPerfilUsuario() {
     }
 }
 
+let timerChatCliente = null;
+
 function abrirAtendimento() {
     const atendimento = document.getElementById('atendimentoLateral');
     const overlay = document.getElementById('atendimentoOverlay');
@@ -2001,6 +1927,9 @@ function abrirAtendimento() {
         atendimento.classList.add('ativo');
         overlay.classList.add('ativo');
         document.body.style.overflow = 'hidden';
+        carregarMensagensCliente();
+        if (timerChatCliente) clearInterval(timerChatCliente);
+        timerChatCliente = setInterval(carregarMensagensCliente, 3500);
     }
 }
 
@@ -2012,7 +1941,30 @@ function fecharAtendimento() {
         atendimento.classList.remove('ativo');
         overlay.classList.remove('ativo');
         document.body.style.overflow = 'auto';
+        if (timerChatCliente) clearInterval(timerChatCliente);
     }
+}
+
+function carregarMensagensCliente() {
+    fetch('chat_ajax.php?acao=obter_mensagens_cliente')
+        .then(r => r.json())
+        .then(res => {
+            if (res.sucesso && res.mensagens && res.mensagens.length > 0) {
+                const cont = document.getElementById('atendimentoMensagens');
+                if (!cont) return;
+                cont.innerHTML = res.mensagens.map(m => {
+                    const isCli = m.remetente === 'CLIENTE';
+                    return `
+                        <div class="${isCli ? 'mensagem-cliente' : 'mensagem-atendente'}" style="margin-bottom: 0.65rem;">
+                            <div style="font-size: 0.72rem; opacity: 0.75; margin-bottom: 2px;">${m.nome} &bull; ${m.hora}</div>
+                            <div>${m.texto}</div>
+                        </div>
+                    `;
+                }).join('');
+                cont.scrollTop = cont.scrollHeight;
+            }
+        })
+        .catch(() => {});
 }
 
 function enviarMensagemAtendimento(event) {
@@ -2025,22 +1977,21 @@ function enviarMensagemAtendimento(event) {
         return;
     }
 
-    const mensagemCliente = document.createElement('div');
-    mensagemCliente.className = 'mensagem-cliente';
-    mensagemCliente.textContent = input.value.trim();
-
-    mensagens.appendChild(mensagemCliente);
+    const texto = input.value.trim();
     input.value = '';
 
-    setTimeout(() => {
-        const resposta = document.createElement('div');
-        resposta.className = 'mensagem-atendente';
-        resposta.textContent = 'Recebemos sua dúvida. Em breve nossa equipe responderá.';
-        mensagens.appendChild(resposta);
-        mensagens.scrollTop = mensagens.scrollHeight;
-    }, 700);
+    const fd = new FormData();
+    fd.append('acao', 'enviar_mensagem_cliente');
+    fd.append('mensagem', texto);
 
-    mensagens.scrollTop = mensagens.scrollHeight;
+    fetch('chat_ajax.php', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(res => {
+            if (res.sucesso) {
+                carregarMensagensCliente();
+            }
+        })
+        .catch(() => {});
 }
 
 

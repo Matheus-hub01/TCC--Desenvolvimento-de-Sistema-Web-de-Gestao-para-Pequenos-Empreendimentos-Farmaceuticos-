@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" fill="#f8fafc" rx="12"/>
+  <rect x="20" y="20" width="260" height="260" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="6,6" rx="8"/>
+  <g transform="translate(150, 130)">
+    <!-- Pill capsule icon -->
+    <path d="M-30,-20 C-30,-36.5 -16.5,-50 0,-50 C16.5,-50 30,-36.5 30,-20 L30,20 C30,36.5 16.5,50 0,50 C-16.5,50 -30,36.5 -30,20 Z" fill="#008a73" opacity="0.15"/>
+    <path d="M-25,-10 L25,-10" stroke="#008a73" stroke-width="4" stroke-linecap="round"/>
+    <path d="M0,-35 L0,35" stroke="#008a73" stroke-width="4" stroke-linecap="round"/>
+    <!-- Cross/Caduceus badge -->
+    <circle cx="28" cy="28" r="18" fill="#008a73"/>
+    <path d="M28,18 L28,38 M18,28 L38,28" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="150" y="225" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#94a3b8" text-anchor="middle">Imagem ilustrativa</text>
+  <text x="150" y="245" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">Consulte descrição do item</text>
+</svg>
+

@@ -22,7 +22,7 @@ function escapar(string $valor): string
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrinho | Drogaria PharmaPaz</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=<?= filemtime(__DIR__ . '/css/style.css') ?>">
 
     <style>
 
@@ -334,32 +334,271 @@ function escapar(string $valor): string
 
         .tabela-carrinho {
             width: 100%;
-            border-collapse: collapse;
-        }
-
-        .tabela-carrinho th,
-        .tabela-carrinho td {
-            padding: 16px 10px;
-            border-bottom: 1px solid #edf1f2;
-            text-align: left;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 650px;
         }
 
         .tabela-carrinho th {
-            color: #5f6b76;
-            font-size: 14px;
+            padding: 14px 12px;
+            border-bottom: 2px solid #edf1f2;
+            text-align: left;
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .tabela-carrinho td {
+            padding: 18px 12px;
+            border-bottom: 1px solid #edf1f2;
             color: #1f2937;
             font-size: 15px;
+            vertical-align: middle;
+        }
+
+        .produto-carrinho-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .produto-carrinho-img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #edf1f2;
+            padding: 4px;
+            flex-shrink: 0;
+        }
+
+        .produto-carrinho-nome {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 1.35;
+            margin-bottom: 4px;
+        }
+
+        .produto-carrinho-codigo {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .controle-quantidade {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 4px 6px;
+        }
+
+        .botao-quantidade {
+            width: 28px;
+            height: 28px;
+            border: 1px solid transparent;
+            background: #ffffff;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .botao-quantidade:hover:not(:disabled) {
+            background: var(--verde-claro);
+            color: var(--verde-principal);
+            border-color: var(--verde-suave);
+        }
+
+        .botao-quantidade:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .quantidade-valor {
+            min-width: 28px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .preco-unitario {
+            font-size: 15px;
+            font-weight: 500;
+            color: #6b7280;
+            white-space: nowrap;
+        }
+
+        .subtotal-item {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--verde-principal);
+            white-space: nowrap;
+        }
+
+        .botao-lixeira {
+            width: 38px;
+            height: 38px;
+            border: 1px solid #fee2e2;
+            background: #fef2f2;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .botao-lixeira:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            transform: scale(1.05);
+        }
+
+        .botao-lixeira svg,
+        .icone-lixeira {
+            width: 18px !important;
+            height: 18px !important;
+            max-width: 18px !important;
+            max-height: 18px !important;
+            stroke: #ef4444 !important;
+            stroke-width: 2 !important;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none !important;
+            display: block;
+        }
+
+        .rodape-resumo-carrinho {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #edf1f2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .acoes-final-carrinho {
+            display: flex;
+            align-items: center;
+        }
+
+        .botao-continuar {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            border: 1.5px solid #d1d5db;
+            background: #ffffff;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .botao-continuar:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            color: #111827;
+            transform: translateY(-1px);
+        }
+
+        .botao-continuar svg,
+        .icone-seta-voltar {
+            width: 18px !important;
+            height: 18px !important;
+            max-width: 18px !important;
+            max-height: 18px !important;
+            stroke: currentColor !important;
+            stroke-width: 2.2 !important;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none !important;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .bloco-finalizacao {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            margin-left: auto;
+            flex-wrap: wrap;
         }
 
         .total-linha {
-            text-align: right;
-            margin-top: 22px;
-            font-size: 22px;
-            font-weight: 700;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .total-linha span {
+            font-size: 15px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .total-linha strong {
+            font-size: 26px;
+            font-weight: 800;
             color: var(--verde-principal);
+        }
+
+        .botao-finalizar {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 34px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #009f9a, #007e79);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 8px 22px rgba(0, 143, 137, 0.24);
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .botao-finalizar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 143, 137, 0.32);
+            filter: brightness(1.05);
+        }
+
+        .botao-finalizar svg,
+        .icone-seta-avancar {
+            width: 20px !important;
+            height: 20px !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+            stroke: #ffffff !important;
+            stroke-width: 2.4 !important;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none !important;
+            flex-shrink: 0;
+            display: block;
         }
 
         .menu-carrinho.ativo {
@@ -528,6 +767,181 @@ function escapar(string $valor): string
             .modal-title {
                 font-size: 24px;
             }
+
+            .bloco-finalizacao {
+                width: 100%;
+                justify-content: space-between;
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .rodape-resumo-carrinho {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .botao-continuar {
+                justify-content: center;
+            }
+
+            .bloco-finalizacao {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .botao-finalizar {
+                justify-content: center;
+            }
+
+            .total-linha {
+                justify-content: space-between;
+            }
+        }
+
+        /* Estilos do Modal de Login/Cadastro no Carrinho */
+        .modal-auth {
+            max-width: 520px !important;
+            padding: 44px 36px !important;
+        }
+
+        .auth-screen {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .voltar-link {
+            display: inline-block;
+            color: var(--verde-principal);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .voltar-link:hover {
+            color: var(--verde-escuro);
+        }
+
+        .auth-botoes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-button-primary {
+            background: linear-gradient(135deg, #009f9a, #007e79);
+            color: #ffffff;
+            width: 100%;
+        }
+
+        .modal-button-secondary {
+            background: #ffffff;
+            color: var(--verde-principal);
+            border: 2px solid #e0e7ff;
+            box-shadow: none;
+        }
+
+        .modal-button-secondary:hover {
+            background: #f9fafb;
+            border-color: var(--verde-principal);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px 12px 44px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: 0.2s;
+            background: #ffffff;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--verde-principal);
+            box-shadow: 0 0 0 3px rgba(0, 159, 154, 0.12);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            width: 20px !important;
+            height: 20px !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+            color: #9ca3af;
+            stroke: currentColor !important;
+            fill: none !important;
+            stroke-width: 2 !important;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .toggle-senha {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            color: #6b7280;
+        }
+
+        .toggle-senha:hover {
+            color: var(--verde-principal);
+        }
+
+        .forca-senha {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-row .form-group {
+            margin: 0;
+        }
+
+        .form-row .input-group input {
+            width: 100%;
+            min-width: 0;
         }
     </style>
 </head>
@@ -930,9 +1344,7 @@ function escapar(string $valor): string
     <button
         type="button"
         class="botao-lixeira"
-
         title="Excluir item"
-
         onclick='removerItem(
             <?= json_encode(
                 $codigo,
@@ -940,24 +1352,24 @@ function escapar(string $valor): string
             ) ?>
         )'
     >
-
         <svg
+            class="icone-lixeira"
             viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
             aria-hidden="true"
         >
-
             <path d="M3 6h18"></path>
-
             <path d="M8 6V4h8v2"></path>
-
             <path d="M19 6l-1 14H6L5 6"></path>
-
             <path d="M10 11v5"></path>
-
             <path d="M14 11v5"></path>
-
         </svg>
-
     </button>
 
 </td>
@@ -976,12 +1388,22 @@ function escapar(string $valor): string
     <div class="acoes-final-carrinho">
 
         <a href="produtos.php" class="botao-continuar">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M15 6L9 12L15 18"></path>
-    </svg>
-
-    <span>Continuar comprando</span>
-</a>
+            <svg
+                class="icone-seta-voltar"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+            >
+                <path d="M15 6L9 12L15 18"></path>
+            </svg>
+            <span>Continuar comprando</span>
+        </a>
 
     </div>
 
@@ -989,7 +1411,6 @@ function escapar(string $valor): string
 
         <div class="total-linha">
             <span>Total do carrinho</span>
-
             <strong id="totalCarrinho">
                 R$ <?= number_format($totalGeral, 2, ',', '.') ?>
             </strong>
@@ -997,31 +1418,51 @@ function escapar(string $valor): string
 
         <?php if ($clienteLogado): ?>
 
-    <a href="finalizar_pedido.php" class="botao-finalizar">
-        <span>Finalizar compra</span>
+            <a href="finalizar_pedido.php" class="botao-finalizar">
+                <span>Finalizar compra</span>
+                <svg
+                    class="icone-seta-avancar"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="M5 12H19"></path>
+                    <path d="M13 6L19 12L13 18"></path>
+                </svg>
+            </a>
 
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 12H19"></path>
-            <path d="M13 6L19 12L13 18"></path>
-        </svg>
-    </a>
+        <?php else: ?>
 
-<?php else: ?>
+            <a
+                href="#"
+                class="botao-finalizar"
+                onclick="abrirLoginCadastro(event)"
+            >
+                <span>Finalizar compra</span>
+                <svg
+                    class="icone-seta-avancar"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="M5 12H19"></path>
+                    <path d="M13 6L19 12L13 18"></path>
+                </svg>
+            </a>
 
-    <a
-        href="#"
-        class="botao-finalizar"
-        onclick="abrirLoginCadastro(event)"
-    >
-        <span>Finalizar compra</span>
-
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 12H19"></path>
-            <path d="M13 6L19 12L13 18"></path>
-        </svg>
-    </a>
-
-<?php endif; ?>
+        <?php endif; ?>
 
     </div>
 
